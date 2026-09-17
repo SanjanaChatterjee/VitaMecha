@@ -1,0 +1,3 @@
+"""
+VitaMecha — tests package initializer.
+"""

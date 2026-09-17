@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Data — keep directory, exclude large files
+data/raw/*.txt
+data/raw/*.csv
+data/processed/*.csv
+
+# Models — exclude large model files from version control
+models/**/*.joblib
+models/**/*.pkl
+models/**/*.json
+
+# Experiment outputs
+experiments/*.csv
+
+# Logs
+*.log
+logs/
+
+# Environment variables
+.env

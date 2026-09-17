@@ -1,0 +1,7 @@
+.venv*
+.pytest_cache
+__pycache__
+.git
+*.ipynb
+archive (1)
+data/raw/*.txt

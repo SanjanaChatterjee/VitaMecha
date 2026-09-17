@@ -1,0 +1,3 @@
+"""
+VitaMecha — src package initializer.
+"""
