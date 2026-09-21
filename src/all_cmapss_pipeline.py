@@ -15,11 +15,10 @@ from sklearn.ensemble import HistGradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 from sklearn.model_selection import GroupShuffleSplit
 from xgboost import XGBRegressor
-from src.config import COLUMN_NAMES, RUL_CAP, RANDOM_SEED, BASELINE_RF_PARAMS, IMPROVED_XGB_PARAMS, ROLLING_WINDOW
+from src.config import COLUMN_NAMES, RUL_CAP, RANDOM_SEED, IMPROVED_XGB_PARAMS, ROLLING_WINDOW
 from src.feature_engineering import engineer_features
 
 ROOT = Path(__file__).resolve().parents[1]
-ARCHIVE = ROOT / "archive (1)"
 RAW = ROOT / "data" / "raw"
 PROCESSED = ROOT / "data" / "processed"
 EXP = ROOT / "experiments"
@@ -31,9 +30,11 @@ log = logging.getLogger("combined_cmapss")
 
 
 def source_file(name: str, subset: str) -> Path:
+    """Locate a raw C-MAPSS text file."""
     p = RAW / f"{name}_{subset}.txt"
-    if p.exists(): return p
-    return ARCHIVE / f"{name}_{subset}.txt"
+    if not p.exists():
+        raise FileNotFoundError(f"Raw file not found: {p}")
+    return p
 
 
 def load_raw(path: Path) -> pd.DataFrame:
@@ -154,7 +155,7 @@ def train_and_evaluate(train_df: pd.DataFrame, test_df: pd.DataFrame, n_features
     t0=time.perf_counter(); xgb.fit(X[selected], y, verbose=False); xgb_time=time.perf_counter()-t0
     pred=np.clip(xgb.predict(Xt[selected]),0,RUL_CAP); xgb_metrics=metrics(yt, pred); xgb_metrics["train_time_s"]=xgb_time
     joblib.dump(xgb, MODELS / "combined_final_xgb.joblib")
-    joblib.dump(xgb, MODELS / "combined_improved_xgb.joblib")
+
     # Quantile models provide an empirical 10th-90th percentile RUL interval for the API.
     q_params = dict(final_params)
     q_params.pop("objective", None)

@@ -40,7 +40,7 @@ def run():
         # Independent but deterministic perturbation per condition.
         global RNG; RNG=np.random.default_rng(RANDOM_SEED+int(n*1000)+int(m*1000))
         raw=perturb_raw(test,n,m)
-        rows += [eval_model('Baseline RF',raw,False)|{'condition':name}, eval_model('Improved XGBoost',raw,True)|{'condition':name}]
+        rows += [eval_model('Combined XGB Baseline',raw,False)|{'condition':name}, eval_model('Improved XGBoost',raw,True)|{'condition':name}]
     out=pd.DataFrame(rows); EXPERIMENTS_DIR.mkdir(exist_ok=True); out.to_csv(ROBUSTNESS_RESULTS,index=False); return out
 
 if __name__=='__main__': print(run().to_string(index=False))

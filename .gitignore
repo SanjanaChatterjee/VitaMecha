@@ -23,10 +23,14 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Archive / Kaggle download artifacts
+archive*/
+
 # Data — keep directory, exclude large files
 data/raw/*.txt
 data/raw/*.csv
 data/processed/*.csv
+data/*.csv
 
 # Models — exclude large model files from version control
 models/**/*.joblib
@@ -42,3 +46,4 @@ logs/
 
 # Environment variables
 .env
+
