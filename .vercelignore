@@ -1,0 +1,28 @@
+# Vercel Deployment Ignore File
+# Prevents Vercel from bundling Python backend, virtualenv, and data into serverless functions
+
+# Python backend & CLI
+api/
+src/
+dashboard/
+notebooks/
+scripts/
+tests/
+experiments/
+
+# Python configuration & dependencies
+requirements.txt
+Dockerfile
+.dockerignore
+train_vitamecha.py
+scratch_eval.py
+
+# Models & Data
+models/
+data/
+archive*/
+
+# Cache & virtual env
+.venv/
+__pycache__/
+*.pyc

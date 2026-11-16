@@ -1,6 +1,7 @@
 {
   "version": 2,
   "cleanUrls": true,
+  "outputDirectory": "frontend",
   "headers": [
     {
       "source": "/(.*)",
@@ -20,7 +21,7 @@
       ]
     },
     {
-      "source": "/(css|js)/(.*)",
+      "source": "/(css|js|assets)/(.*)",
       "headers": [
         {
           "key": "Cache-Control",

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VitaMecha — Explainable Predictive Maintenance Framework</title>
+  <meta name="description" content="Explainable predictive maintenance framework for remaining useful life estimation and intelligent maintenance decision support.">
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml">
+  
+  <!-- CSS Stylesheets -->
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/components.css">
+  <link rel="stylesheet" href="css/responsive.css">
+
+  <!-- Chart.js for industrial diagnostics -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar" id="sidebar">
+      <a href="#" class="sidebar-brand">
+        <img src="assets/logo.svg" alt="VitaMecha" class="sidebar-brand-logo">
+        <div class="sidebar-brand-text">
+          <span class="sidebar-brand-name">VitaMecha</span>
+          <span class="sidebar-brand-tagline">A Life to Your Machines</span>
+        </div>
+      </a>
+
+      <div class="sidebar-label">Navigation</div>
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-page="problem-analysis">
+          <svg class="nav-item-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+          <span>Problem Analysis</span>
+        </button>
+
+        <button class="nav-item" data-page="fleet-overview">
+          <svg class="nav-item-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+          </svg>
+          <span>Fleet Overview</span>
+        </button>
+
+        <button class="nav-item" data-page="live-monitoring">
+          <svg class="nav-item-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
+          <span>Live Monitoring</span>
+        </button>
+
+        <button class="nav-item" data-page="research-analytics">
+          <svg class="nav-item-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+          </svg>
+          <span>Research Analytics</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-version">VitaMecha v2.0.0 &bull; C-MAPSS FD001-FD004</div>
+      </div>
+    </aside>
+
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- Main Workspace -->
+    <div class="main-wrapper">
+      
+      <!-- Top Application Header -->
+      <header class="app-header">
+        <div class="header-left">
+          <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Navigation">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>
+            </svg>
+          </button>
+          <div class="page-breadcrumb">
+            <span>VitaMecha</span>
+            <span class="page-breadcrumb-separator">/</span>
+            <span class="page-breadcrumb-current" id="breadcrumb-current">Machine Problem Analysis</span>
+          </div>
+        </div>
+
+        <div class="header-right">
+          <div class="connection-status" id="connection-btn" title="Click to view API settings">
+            <span class="status-dot checking" id="status-dot"></span>
+            <span id="status-text">Checking...</span>
+          </div>
+          <button class="header-settings-btn" id="settings-open-btn" aria-label="Settings">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- Main Scrollable Content Area -->
+      <main class="page-content">
+
+        <!-- ================================================================= -->
+        <!-- PAGE 1: MACHINE PROBLEM ANALYSIS (Default)                         -->
+        <!-- ================================================================= -->
+        <section class="page-section active" id="page-problem-analysis">
+          <div class="page-title">Machine Problem Analysis</div>
+          <div class="page-subtitle">Understand what your machine is telling you.</div>
+
+          <!-- Demo Banner (when falling back to verified local data) -->
+          <div class="alert alert-warning mb-md hidden" id="pa-demo-banner">
+            <span class="alert-icon">⚠️</span>
+            <div><strong>DEMO DATA:</strong> Backend API is currently disconnected or unreachable. Displaying verified local C-MAPSS simulation data. Start the FastAPI backend on port 8000 for live model predictions.</div>
+          </div>
+
+          <!-- Machine Selector Control Bar -->
+          <div class="selector-row">
+            <div class="selector-group">
+              <label class="form-label" for="select-dataset">Dataset Sub-fleet</label>
+              <select class="form-select" id="select-dataset">
+                <option value="ALL">All Datasets (FD001-FD004)</option>
+                <option value="FD001">FD001 (Sea Level, HPC)</option>
+                <option value="FD002">FD002 (6 Regimes, HPC)</option>
+                <option value="FD003">FD003 (Sea Level, HPC+Fan)</option>
+                <option value="FD004">FD004 (6 Regimes, HPC+Fan)</option>
+              </select>
+            </div>
+
+            <div class="selector-group">
+              <label class="form-label" for="select-machine">Machine ID</label>
+              <select class="form-select" id="select-machine"></select>
+            </div>
+
+            <div class="selector-group">
+              <label class="form-label" for="input-cycle">Observation Cycle (Max: <span id="cycle-max-display">--</span>)</label>
+              <input type="number" class="form-input" id="input-cycle" min="1" max="100" value="1">
+            </div>
+
+            <button class="btn btn-primary" id="btn-analyse">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+              <span>Analyse Machine</span>
+            </button>
+          </div>
+
+          <!-- Loading State -->
+          <div class="state-message hidden" id="pa-loading">
+            <div class="spinner"></div>
+            <div class="state-message-title">Running Model Inference</div>
+            <div class="state-message-text">Evaluating sensor telemetry against the final XGBoost model and calculating SHAP contributions...</div>
+          </div>
+
+          <!-- Empty State -->
+          <div class="state-message" id="pa-empty-state">
+            <div class="state-message-icon">⚙️</div>
+            <div class="state-message-title">Select a Machine to Begin</div>
+            <div class="state-message-text">Choose an engine and operating cycle above, then click <strong>Analyse Machine</strong> to inspect condition, health status, and SHAP-based problem findings.</div>
+          </div>
+
+          <!-- Error State -->
+          <div class="state-message hidden" id="pa-error-state">
+            <div class="state-message-icon">⚠️</div>
+            <div class="state-message-title">Analysis Unavailable</div>
+            <div class="state-message-text" id="pa-error-message">Could not retrieve prediction for this engine.</div>
+            <button class="btn btn-secondary mt-sm" id="pa-retry-btn">Retry Analysis</button>
+          </div>
+
+          <!-- Results Area -->
+          <div class="hidden" id="pa-results-area">
+            
+            <!-- Summary Metric Cards -->
+            <div class="grid-row grid-4 mb-lg">
+              <div class="metric-card">
+                <span class="metric-label">Predicted RUL</span>
+                <div class="metric-value text-accent" id="pa-rul-value">-- <span class="metric-unit">cycles</span></div>
+                <span class="metric-sub" id="pa-rul-interval">80% Interval: [--, --]</span>
+              </div>
+
+              <div class="metric-card">
+                <span class="metric-label">Health Status</span>
+                <div style="margin: 0.25rem 0;">
+                  <span class="badge badge-healthy" id="pa-health-badge">HEALTHY</span>
+                </div>
+                <span class="metric-sub" id="pa-health-note">Threshold > 80 cycles</span>
+              </div>
+
+              <div class="metric-card">
+                <span class="metric-label">Operational Risk</span>
+                <div class="metric-value" id="pa-risk-value" style="font-size: 1.5rem;">Low</div>
+                <span class="metric-sub">Trend: <strong id="pa-trend-value">Stable</strong></span>
+              </div>
+
+              <div class="metric-card">
+                <span class="metric-label">Model Latency</span>
+                <div class="metric-value" id="pa-latency-value">-- <span class="metric-unit">ms</span></div>
+                <span class="metric-sub">Final XGBoost Inference</span>
+              </div>
+            </div>
+
+            <!-- Central Split: Problems Identified vs Advisory Action -->
+            <div class="grid-row grid-split mb-lg">
+              
+              <!-- Problems Identified by the Model (Section C) -->
+              <div class="card">
+                <div class="card-header">
+                  <div>
+                    <h3 class="card-title">
+                      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                      </svg>
+                      <span>Problems Identified by the Model</span>
+                    </h3>
+                    <div class="card-subtitle">Key sensor readings influencing the current RUL prediction based on SHAP feature attributions.</div>
+                  </div>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 0.75rem;" id="pa-findings-list"></div>
+
+                <button class="btn btn-ghost btn-sm mt-sm hidden" id="pa-findings-show-more" style="align-self: center;">
+                  Show all features
+                </button>
+              </div>
+
+              <!-- Recommended Maintenance Action (Section E) -->
+              <div>
+                <div class="recommendation-panel priority-routine mb-md" id="pa-recommendation">
+                  <div class="rec-priority" id="pa-rec-priority">ADVISORY LEVEL: ROUTINE</div>
+                  <div class="rec-action" id="pa-rec-action">Continue normal operation.</div>
+                  <ul class="rec-details" id="pa-rec-details">
+                    <li>Continue routine scheduled operation.</li>
+                  </ul>
+                  <div class="rec-sensor-note" id="pa-rec-sensor-note"></div>
+                  <div class="rec-disclaimer" id="pa-rec-disclaimer">
+                    VitaMecha provides decision support only. All maintenance actions must be validated and executed by qualified engineers.
+                  </div>
+                </div>
+
+                <!-- Section D: What Does This Mean? Plain-English Translation -->
+                <div class="explanation-section" id="pa-explanation">
+                  <h4 style="font-size: 0.9375rem; margin-bottom: 0.75rem; font-weight: 600;">What Does This Mean?</h4>
+                  
+                  <div class="explanation-block">
+                    <div class="explanation-block-title">
+                      <span>▸</span> What the model observed
+                    </div>
+                    <div class="explanation-block-text" id="pa-explain-observed">
+                      Evaluating sensor telemetry...
+                    </div>
+                  </div>
+
+                  <div class="explanation-block">
+                    <div class="explanation-block-title">
+                      <span>▸</span> Why it matters
+                    </div>
+                    <div class="explanation-block-text" id="pa-explain-matters">
+                      Evaluating machine health assessment...
+                    </div>
+                  </div>
+
+                  <div class="explanation-block">
+                    <div class="explanation-block-title">
+                      <span>▸</span> What should be checked
+                    </div>
+                    <div class="explanation-block-text" id="pa-explain-check">
+                      Evaluating maintenance channels...
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Trajectory Trend Chart (Section G) -->
+            <div class="card mb-lg">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">RUL Degradation Trajectory</h3>
+                  <div class="card-subtitle">Predicted remaining life trajectory across observed flight cycles.</div>
+                </div>
+              </div>
+              <div class="chart-wrap">
+                <canvas id="chart-rul-analysis"></canvas>
+              </div>
+            </div>
+
+            <!-- Local SHAP Contributions -->
+            <div class="card mb-lg">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Feature Contributions (SHAP Attributions)</h3>
+                  <div class="card-subtitle">Local feature impact on predicted RUL. Green adds margin; red reduces predicted RUL.</div>
+                </div>
+              </div>
+              <div class="shap-bar-list" id="pa-shap-bars"></div>
+            </div>
+
+            <!-- Expandable Sensor Evidence (Section F) -->
+            <div class="card mb-lg">
+              <button class="expandable-toggle" id="pa-sensor-toggle">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+                <span>View Complete Sensor Telemetry & Evidence</span>
+              </button>
+              <div class="expandable-content" id="pa-sensor-content">
+                <div class="table-wrapper">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Channel / Feature</th>
+                        <th>Observed Reading</th>
+                        <th>Model Contribution (SHAP)</th>
+                      </tr>
+                    </thead>
+                    <tbody id="pa-sensor-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Expandable Data Quality & Model Information (Section H) -->
+            <div class="card">
+              <button class="expandable-toggle" id="pa-data-toggle">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+                <span>Data Quality & Model Information</span>
+              </button>
+              <div class="expandable-content" id="pa-data-content">
+                <div id="pa-data-info"></div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PAGE 2: FLEET OVERVIEW                                             -->
+        <!-- ================================================================= -->
+        <section class="page-section" id="page-fleet-overview">
+          <div class="page-title">Fleet Overview</div>
+          <div class="page-subtitle">Summary of all tracked turbofan engines across the C-MAPSS fleet.</div>
+
+          <!-- Fleet Metrics -->
+          <div class="grid-row grid-4 mb-lg">
+            <div class="metric-card">
+              <span class="metric-label">Tracked Fleet</span>
+              <div class="metric-value" id="ov-total-machines">0</div>
+              <span class="metric-sub">Total engines monitored</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Healthy Machines</span>
+              <div class="metric-value text-healthy" id="ov-healthy-count">0</div>
+              <span class="metric-sub">RUL > 80 cycles</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Advisory Warnings</span>
+              <div class="metric-value text-warning" id="ov-warning-count">0</div>
+              <span class="metric-sub">40 &le; RUL &le; 80 cycles</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Critical / Degraded</span>
+              <div class="metric-value text-critical">
+                <span id="ov-critical-count">0</span> / <span id="ov-degraded-count" class="text-degraded">0</span>
+              </div>
+              <span class="metric-sub">Immediate inspection required</span>
+            </div>
+          </div>
+
+          <!-- Filter Controls -->
+          <div class="card mb-lg">
+            <div class="form-row">
+              <div style="flex: 1;">
+                <label class="form-label" for="ov-search-machine">Search Engine ID</label>
+                <input type="text" class="form-input" id="ov-search-machine" placeholder="e.g. FD001_engine_001">
+              </div>
+              <div style="width: 200px;">
+                <label class="form-label" for="ov-filter-dataset">Dataset</label>
+                <select class="form-select" id="ov-filter-dataset">
+                  <option value="ALL">All Datasets</option>
+                  <option value="FD001">FD001</option>
+                  <option value="FD002">FD002</option>
+                  <option value="FD003">FD003</option>
+                  <option value="FD004">FD004</option>
+                </select>
+              </div>
+              <div style="width: 200px;">
+                <label class="form-label" for="ov-filter-status">Health Status</label>
+                <select class="form-select" id="ov-filter-status">
+                  <option value="ALL">All States</option>
+                  <option value="HEALTHY">Healthy</option>
+                  <option value="WARNING">Warning</option>
+                  <option value="DEGRADED">Degraded</option>
+                  <option value="CRITICAL">Critical</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fleet Table -->
+          <div class="card">
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Machine ID</th>
+                    <th>Sub-fleet</th>
+                    <th>Predicted RUL</th>
+                    <th>Health Status</th>
+                    <th>Operational Risk</th>
+                    <th>Latest Cycle</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="ov-fleet-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PAGE 3: LIVE MONITORING                                            -->
+        <!-- ================================================================= -->
+        <section class="page-section" id="page-live-monitoring">
+          <div class="page-title">Live Monitoring</div>
+          <div class="page-subtitle">Sequential sensor telemetry replay simulating real-time edge streaming.</div>
+
+          <div class="card mb-lg">
+            <div class="form-row" style="align-items: center; margin-bottom: 1rem;">
+              <div style="width: 240px;">
+                <label class="form-label" for="mon-select-machine">Target Machine</label>
+                <select class="form-select" id="mon-select-machine"></select>
+              </div>
+              <div style="display: flex; gap: 0.5rem; margin-top: 1.4rem;">
+                <button class="btn btn-primary" id="mon-btn-play">▶ Start Stream</button>
+                <button class="btn btn-secondary" id="mon-btn-reset">↺ Reset</button>
+              </div>
+              <div style="width: 150px; margin-left: auto;">
+                <label class="form-label" for="mon-select-speed">Playback Speed</label>
+                <select class="form-select" id="mon-select-speed">
+                  <option value="50">Fast (50ms)</option>
+                  <option value="150" selected>Normal (150ms)</option>
+                  <option value="350">Slow (350ms)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <div class="progress-bar" style="flex: 1;">
+                <div class="progress-bar-fill" id="mon-progress-bar" style="width: 0%;"></div>
+              </div>
+              <span class="cell-mono text-sm text-muted" id="mon-cycle-label">Cycle 0</span>
+            </div>
+          </div>
+
+          <!-- Monitoring Grid -->
+          <div class="grid-row grid-split mb-lg">
+            <div class="card">
+              <div class="card-header">
+                <div>
+                  <h3 class="card-title">Live RUL Degradation Trajectory</h3>
+                  <div class="card-subtitle">Real-time prediction curve computed sequentially observation-by-observation.</div>
+                </div>
+              </div>
+              <div class="chart-wrap">
+                <canvas id="chart-mon-live"></canvas>
+              </div>
+            </div>
+
+            <div>
+              <div class="metric-card mb-md">
+                <span class="metric-label">Current Streaming RUL</span>
+                <div class="metric-value text-accent" id="mon-current-rul">-- <span class="metric-unit">cycles</span></div>
+                <div style="margin-top: 0.5rem;">
+                  <span class="badge badge-healthy" id="mon-health-badge">READY</span>
+                </div>
+              </div>
+
+              <div class="card">
+                <h4 style="font-size: 0.875rem; margin-bottom: 0.75rem;">Sequential Observation Log</h4>
+                <div class="table-wrapper" style="max-height: 240px;">
+                  <table class="data-table">
+                    <thead>
+                      <tr>
+                        <th>Cycle</th>
+                        <th>Predicted RUL</th>
+                        <th>Status</th>
+                        <th>Inference</th>
+                      </tr>
+                    </thead>
+                    <tbody id="mon-log-body"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ================================================================= -->
+        <!-- PAGE 4: RESEARCH ANALYTICS                                         -->
+        <!-- ================================================================= -->
+        <section class="page-section" id="page-research-analytics">
+          <div class="page-title">Research Analytics</div>
+          <div class="page-subtitle">Empirical experimental benchmarks on the combined NASA C-MAPSS FD001-FD004 benchmark (707 test engines).</div>
+
+          <div class="card mb-lg">
+            <h3 class="card-title mb-sm">1. Model Benchmark Comparison</h3>
+            <div class="card-subtitle mb-md">Evaluation of the reproducible baseline versus the final VitaMecha XGBoost architecture on all 25 raw telemetry features.</div>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Model Architecture</th>
+                    <th>MAE</th>
+                    <th>RMSE</th>
+                    <th>R² Score</th>
+                    <th>PHM Score</th>
+                    <th>Features</th>
+                  </tr>
+                </thead>
+                <tbody id="res-comparison-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="grid-row grid-split mb-lg">
+            <div class="card">
+              <h3 class="card-title mb-sm">2. Per-Dataset Performance (FD001–FD004)</h3>
+              <div class="card-subtitle mb-md">Disaggregated test evaluation across single and multi-operating regime flight envelopes.</div>
+              <div class="table-wrapper">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Dataset</th>
+                      <th>Model</th>
+                      <th>MAE</th>
+                      <th>RMSE</th>
+                      <th>R² Score</th>
+                      <th>PHM Score</th>
+                    </tr>
+                  </thead>
+                  <tbody id="res-dataset-body"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="card">
+              <h3 class="card-title mb-sm">3. Global SHAP Feature Importance</h3>
+              <div class="card-subtitle mb-md">Mean absolute SHAP impact across the combined test fleet.</div>
+              <div id="res-shap-bars" style="margin-top: 1rem;"></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 class="card-title mb-sm">4. Robustness to Sensor Noise & Missing Data</h3>
+            <div class="card-subtitle mb-md">Stress testing with zero-mean Gaussian sensor noise and systematic sensor channel drops.</div>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Perturbation Condition</th>
+                    <th>MAE</th>
+                    <th>RMSE</th>
+                    <th>R² Score</th>
+                    <th>PHM Score</th>
+                  </tr>
+                </thead>
+                <tbody id="res-robustness-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- Connection & Settings Modal -->
+  <div class="modal-overlay" id="settings-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3>FastAPI Connection Settings</h3>
+        <button class="modal-close-btn" id="settings-close-btn">&times;</button>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="settings-url-input">Backend Base URL</label>
+        <input type="url" class="form-input" id="settings-url-input" value="http://localhost:8000" placeholder="https://api.yourdomain.com">
+        <div class="form-help">Default: <code>http://localhost:8000</code> for local uvicorn development.</div>
+      </div>
+
+      <div style="display: flex; gap: 0.75rem; margin-top: 1.5rem;">
+        <button class="btn btn-secondary" id="settings-test-btn">Test Connection</button>
+        <button class="btn btn-primary" id="settings-save-btn">Save & Apply</button>
+      </div>
+
+      <div id="settings-test-result" style="margin-top: 1rem; font-size: 0.8125rem;"></div>
+    </div>
+  </div>
+
+  <!-- Telemetry and Application Scripts -->
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/telemetry-data.js"></script>
+  <script src="js/machine-selector.js"></script>
+  <script src="js/explanation.js"></script>
+  <script src="js/problem-analysis.js"></script>
+  <script src="js/overview.js"></script>
+  <script src="js/monitoring.js"></script>
+  <script src="js/analytics.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
